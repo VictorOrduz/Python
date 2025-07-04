@@ -77,7 +77,7 @@ def registrarLibro():
     
     isbn = input("ISBN del libro: ").strip().lower()
     if isbn == '0': return
-    if not autor:
+    if not isbn:
         print("❌ el ISBN no puede estar vacio ❌")   
         return
     
@@ -102,11 +102,141 @@ def registrarLibro():
     print("=============================================================")
     
 def registrarsocio():
-    pass
+    global socios, auxContador
+
+    print("================================================================")
+    print("Registrar Socio 👤")
+    print("================================================================")
+    print("Digite 0 si quiere cancelar la creacion")
+
+    nombre = input("Nombre del socio: ").strip().lower()
+    
+    if nombre == "0": return
+
+    if not nombre:
+        print("❌ El nombre no puede estar vacío ❌")
+        return
+
+    apellido = input("Apellido del socio: ").strip().lower()
+
+    if apellido == "0": return
+
+    if not apellido:
+        print("❌ El apellido no puede estar vacío ❌")
+        return
+
+    email = input("Email del socio: ").strip().lower()
+
+    if email == "0": return
+
+    if not email:
+        print("❌ El email no puede estar vacío ❌")
+        return
+    
+    # Verificar si ya existe un socio con ese email
+    for socio in socios:
+        if socio['email'] == email:
+            print(f"❌ Ya existe un socio con el email {email} ❌")
+            return
+
+    # Crear el nuevo socio
+    nuevo_socio = {
+        'id': f'Socio-{auxContador:03d}',
+        'nombre': nombre,
+        'apellido': apellido,
+        'email': email,
+        'libros_prestados': []
+    }
+
+    socios.append(nuevo_socio)
+    auxContador += 1
+    
+    print("✅ Socio Registrado Exitosamente 👤")
+    print(f"👤 {nombre} {apellido}")
+    print(f"📧 Email: {email}")
+    print(f"🆔 ID: {nuevo_socio['id']}")
+    print("================================================================")
+
 def prestrarLibro():
-    pass
+    global libros, socios
+    
+    print("PRESTAMO DE LIBROS")
+    
+    isbn = ("digite el isbn del libro a prestar: ").strip()
+    
+    if not isbn:
+        print("❌ el ISBN no puede estar vacio ❌")   
+        return
+    
+    libroEncontrado = None
+    
+    for libro in libros:
+        if libro['isbn'] == isbn:
+            libroEncontrado = libro
+            break
+            
+    if not libroEncontrado:
+        print(f"❌ no existe un libro con ISBN {isbn} ❌")
+        return
+    
+    id_socio = input("ID del socio: ").strip()
+    print(id_socio)
+    
+    if not id_socio:
+        print("el ID no puede estar vacio")
+        return
+
+    idSocioEncontrado = None
+    for socio in socios:
+        if socio['id'] == id_socio:
+            idSocioEncontrado = socio
+            break
+        
+    if not idSocioEncontrado:
+        print(f"NO se encontro un usuario con el ID {id_socio}")
+        return
+    
+    disponibleLibro = None
+    for libro in libros:
+        if libro['estado'] == 'Disponible':
+            disponibleLibro = True
+            break
+        
+    if not disponibleLibro:
+        print("Actualmente el libro solicitado no esta disponible")
+        return
+    
+    libroEncontrado['estado'] == 'Prestado'
+    libroEncontrado['socio_prestado'] = id_socio
+    
+    print("libro pretado con exito")
+    print({libroEncontrado['titulo']})
+    print(f"libro prestado a {idSocioEncontrado['nombre']}")
+               
 def devolverLibro():
-    pass
+    global libros
+    
+    isbn = input("ISBN del libro a prestar: ").strip()
+    
+    if not isbn:
+        print(" el ISBN no puede estar vacio")
+        return
+
+    libroEncontrado = None
+    for libro in libros:
+        if libro['isbn'] == isbn:
+            libroEncontrado = libro
+            break
+        
+    if not libroEncontrado:
+        print(f"no se encontro un libro con el ISBN {isbn}")
+        return
+    
+    libroEncontrado['estado'] = 'Disponible'
+    libroEncontrado['socio_prestado'] = None
+    
+    print("Libro devuelto exitosamente")
+
 def verLibrosPrestados():
     pass
 def verTodosLibros():
@@ -134,10 +264,43 @@ def verTodosLibros():
     print(table)    
     
 def verTodosSocios():
-    pass
+    table = PrettyTable()
 
+    table.field_names = ["ID", "Nombre", "Apellido", "Email", "Libros Prestados"]
 
-#funcion principal del programaautor
+    table.title = "👤 Mostrando Socios 👤"
+
+    if not socios:
+        print("================================================================")
+        print("No hay socios registrados en la biblioteca")
+        print("================================================================")
+        return
+
+    for socio in socios:
+        libros_prestados = len(socio["libros_prestados"])
+        table.add_row([socio["id"], socio["nombre"], socio["apellido"], socio["email"], libros_prestados])
+
+    print(table)
+
+    """
+    print("================================================================")
+    print("Mostrando todos los socios")
+    print("================================================================")
+
+    if not socios:
+        print("No hay socios registrados en la biblioteca")
+        return
+    
+    for i, socio in enumerate(socios, 1):
+        print("================================================================")
+        print(f"{i}. ID: {socio["id"]}")
+        print(f"     Nombre: {socio["nombre"]} {socio["apellido"]}")
+        print(f"     Email: {socio["email"]}")
+        print(f"     Libros Prestados: {len(socio["libros_prestados"])}")
+        print("================================================================")
+    """
+    
+#funcion principal del programa
 def main():
     table = PrettyTable()
     while True:
@@ -148,17 +311,17 @@ def main():
             case '1':
                 registrarLibro()
             case '2':
-                pass
+                registrarsocio()
             case '3':
-                pass
+                prestrarLibro()
             case '4':
-                pass
+                devolverLibro()
             case '5':
                 pass
             case '6':
                 verTodosLibros()
             case '7':
-                pass
+                verTodosSocios()
             case '0':
                 print("=============================================================")
                 print("😉 Gracias por usar MINIBIBLIO 😜")
@@ -169,3 +332,4 @@ def main():
                 print("opcion no valida, por favor seleccione una opcion del 0 al 7")
 
 main()
+
